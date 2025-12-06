@@ -1,14 +1,10 @@
 import cv2
-from pathlib import Path
-import numpy as np
-from ultralytics import YOLO
 import config
 from support.frame_selector import FrameSelector
 from support.frame_utils import resize_frame, save_frame
 from support.paddleocr_model import PaddleOCRModel
 from support.yolo_model import YoloObjDetectionModel
 from text_recognition_rnd import detect_and_verify
-import cProfile
 
 
 def scan_frame_for_text(frame_data, expected_text=[]):
@@ -40,6 +36,10 @@ def process_video(
 
     if not cap.isOpened():
         raise ValueError(f"Cannot open video: {video_path}")
+    
+    # Get the FPS
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    print(f">>> Frames per second (FPS): {fps}")
 
     # WINDOW_NORMAL flag is required to allow resizing
     cv2.namedWindow(config.WINDOW_NAME, cv2.WINDOW_NORMAL)
@@ -142,4 +142,7 @@ def main():
         show_frames=True,
     )
 
+if __name__ == "__main__":
+    # cProfile.run('main()')
+    main()
  
