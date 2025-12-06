@@ -13,7 +13,7 @@ from support.paddleocr_model import PaddleOCRModel
 
 def detect_and_verify(frame,expected_text=[], save_img=False):
 
-    eroded_frame = frame_utils.apply_erosion(frame,kval=2,save_img=save_img)
+    eroded_frame = frame_utils.apply_erosion(frame,kval=2)
     
     f_width = config.FRAME_WIDTH
     f_height_options = config.FRAME_HEIGHT_OPTIONS  
@@ -26,7 +26,7 @@ def detect_and_verify(frame,expected_text=[], save_img=False):
     for f_height in f_height_options:
         resized = frame_utils.resize_frame(eroded_frame,f_width,f_height)
         for ksize in kernel_sizes:
-            blurred = frame_utils.apply_blurr(resized, ksize, save_img=True)
+            blurred = frame_utils.apply_blurr(resized, ksize)
             if config.OCR_MODEL_TYPE == "paddleOCR":    
                 detected_list = PaddleOCRModel().read_text(blurred)
             # elif config.OCR_MODEL_TYPE == "easyOCR":

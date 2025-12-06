@@ -13,7 +13,7 @@ FRAME_DELAY_MS = 1  # Delay between frames in milliseconds
 # Yolo model
 ############################
 
-YOLO_MODEL_PATH = "y11_final.pt"
+YOLO_MODEL_PATH = "models/yolo11v0.pt"
 #Confidence threshold for detections
 CONFIDENCE_THRESHOLD = 0.85
 
@@ -21,7 +21,7 @@ CONFIDENCE_THRESHOLD = 0.85
 OUTPUT_DIR = "yolo_matches"
 
 #matched frames are saved in OUTPUT_DIR if True
-SAVE_MATCHED_FRAMES = True
+SAVE_FRAME = False
 
 
 ############################
