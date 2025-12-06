@@ -12,14 +12,13 @@ class PaddleOCRModel:
             cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, device="cpu"):
+    def __init__(self):
         if not self._initialized:
             self._ocr = PaddleOCR(
                 use_doc_orientation_classify=False,
                 use_doc_unwarping=False,
                 use_textline_orientation=False,
                 lang="en",
-                device=device,
             )
             self.__class__._initialized = True
     

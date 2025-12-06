@@ -5,7 +5,7 @@ import numpy as np
 import config
 from support import frame_utils
 from support.compare_utils import normalize_text, strip_matched_fragments
-from support.easyocr_model import EasyOCRModel
+# from support.easyocr_model import EasyOCRModel
 from support.paddleocr_model import PaddleOCRModel
 
 
@@ -29,16 +29,18 @@ def detect_and_verify(frame,expected_text=[], save_img=False):
             blurred = frame_utils.apply_blurr(resized, ksize, save_img=True)
             if config.OCR_MODEL_TYPE == "paddleOCR":    
                 detected_list = PaddleOCRModel().read_text(blurred)
-            elif config.OCR_MODEL_TYPE == "easyOCR":
-               detected_list = EasyOCRModel().read_text(blurred)
+            # elif config.OCR_MODEL_TYPE == "easyOCR":
+            #    detected_list = EasyOCRModel().read_text(blurred)
             else:
                 raise RuntimeError("Unsupported OCR model type: {}".format(config.OCR_MODEL_TYPE))
 
             detected_norm_list = [normalize_text(detected_str) for detected_str in detected_list]
             # print(f"img-size {img_height}x{img_width} at {size}x{size}: d_Actual: {detected_list} d_Normal: {detected_norm_list} R_Normal: {remaining_norm_list}")
 
-            print(f"img-size {f_width}x{f_height} at {ksize}x{ksize}: d_Normal: {detected_norm_list}")
             remaining_norm_list = strip_matched_fragments(remaining_norm_list, detected_norm_list)
+            
+            print(f"img-size {f_width}x{f_height} ksize {ksize}x{ksize}: d_Normal: {detected_norm_list}, R_Normal: {remaining_norm_list}")
+
 
             if not remaining_norm_list:
                 print(f" >>>  Full Detection succeeded at {ksize}x{ksize}")

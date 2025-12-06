@@ -5,10 +5,8 @@ from ultralytics import YOLO
 import config
 from support.frame_selector import FrameSelector
 from support.frame_utils import resize_frame, save_frame
+from support.paddleocr_model import PaddleOCRModel
 from text_recognition_rnd import detect_and_verify
-
-
-
 
 
 def scan_frame_for_text(frame_data, expected_text=[]):
@@ -115,15 +113,21 @@ def process_video(
 
 if __name__ == "__main__":
 
-    # expected_str_list = ["70g+10g*", "Rs.0.14/g", "MFG.12/25", "5338B095J3", "330"]
-    # expected_str_list = ["70g+10g*", "Rs.0.14/g", "MFG.12/25", "5338B095J3", "325"]
-    # expected_str_list = ["70g+5g*", "Rs.0.14/g", "MFG.11/25", "5330B095J3", "1355"]
+    # expected_str_list = ["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "330"]
+    # expected_str_list = ["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "325"]
+    # expected_str_list = ["70g+5g*", "Rs.0.14/g", "MFG.","11/25", "5330B095J3", "1355"]
 
+    # initialize ocr model first
+    print(">>> Initializing PaddleOCR model...")
+    PaddleOCRModel()
+    print(">>> PaddleOCR model initialized.")
+
+    print(">>> Starting video processing...")
     process_video(
         model_path="yolo11v0.pt",
         video_path="D:/TestVideos/Videos/temp/8.mp4",
-        expected_text=["70g+10g*", "Rs.0.14/g", "MFG.12/25", "5338B095J3", "325"],
+        expected_text=["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "325"],
         conf_threshold=0.8,
-        frame_delay_ms=100,
+        frame_delay_ms=1,
         show_frames=True,
     )
