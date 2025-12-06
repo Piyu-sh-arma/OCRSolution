@@ -7,7 +7,7 @@ WINDOW_NAME = "Frames"
 WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 400
 #Frame processing settings
-FRAME_DELAY_MS = 1  # Delay between frames in milliseconds
+FRAME_DELAY_MS = 150  # Delay between frames in milliseconds
 
 ############################
 # Yolo model
@@ -51,11 +51,13 @@ FRAME_BORDER_SIZE = 1  # Border size around frames
 
 FRAME_WIDTH = 600
 FRAME_HEIGHT = 60
-FRAME_HEIGHT_OPTIONS=[60,50,70,55,83]
+FRAME_HEIGHT_OPTIONS=[60,50,70]
+# FRAME_HEIGHT_OPTIONS=[60,50,70,55,83]
 
 ## Other options for frame heights
 # FRAME_WIDTH = 1000
 # FRAME_HEIGHT_OPTIONS = [90,100,110,120,135]
 
-GB_BlURR_KSIZES = [3,7]  # Gaussian blur size for preprocessing
+# GB_BlURR_KSIZES = [3,7]
+GB_BlURR_KSIZES = [3]  # Gaussian blur size for preprocessing
 ERODE_KVAL = 2  # Erosion kernel size for preprocessing

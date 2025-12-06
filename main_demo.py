@@ -1,10 +1,13 @@
 import cv2
+import concurrent.futures
+
 import config
 from support.frame_selector import FrameSelector
 from support.frame_utils import resize_frame, save_frame
 from support.paddleocr_model import PaddleOCRModel
 from support.yolo_model import YoloObjDetectionModel
 from text_recognition_rnd import detect_and_verify
+from timing_decorator import timing_decorator   
 
 
 def scan_frame_for_text(frame_data, expected_text=[]):
@@ -15,7 +18,7 @@ def scan_frame_for_text(frame_data, expected_text=[]):
     return detect_and_verify(frame, expected_text)
     
 
-
+@timing_decorator
 def process_video(
     video_path="",
     expected_text=[],
@@ -25,7 +28,12 @@ def process_video(
 ):
     checked_frames_count = 0
     failed_frames_count = 0
-
+    
+    # Initialize executor for non-blocking OCR
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    ocr_futures = []
+    # cv2.setNumThreads(10)
+    # print(f">>> Number of threads: {cv2.getNumThreads()}")
     # Load model once
     model = YoloObjDetectionModel().get_model()
 
@@ -56,6 +64,22 @@ def process_video(
                 break
 
             frame_counter += 1
+            
+            # Check for completed OCR tasks
+            # We iterate over a copy or use a list comprehension to filter
+            done_futures = [f for f in ocr_futures if f.done()]
+            for f in done_futures:
+                ocr_futures.remove(f)
+                try:
+                    success = f.result()
+                    checked_frames_count += 1
+                    if not success:
+                        failed_frames_count += 1
+                except Exception as e:
+                    print(f"Error in OCR task: {e}")
+                    checked_frames_count += 1 # Count even if errored? Or just log
+                    failed_frames_count += 1
+
             # Resize frame for faster processing
             results = model.predict(
                 source=frame,
@@ -85,10 +109,10 @@ def process_video(
                 # Process accumulated frames when detection ends
                 if detected_frames:
                     selected_frame_data = frame_selector.find_with_best_contrast(detected_frames)
+                    # Submit OCR task to background thread
                     # print(f"Selected 1 frames from {len(detected_frames)} detections.")
-                    checked_frames_count += 1
-                    if not scan_frame_for_text(selected_frame_data, expected_text=expected_text):
-                        failed_frames_count += 1
+                    future = executor.submit(scan_frame_for_text, selected_frame_data, expected_text=expected_text)
+                    ocr_futures.append(future)
                     detected_frames = []
 
             # Display frames if enabled
@@ -102,12 +126,23 @@ def process_video(
         if detected_frames:
             selected_frame_data = frame_selector.find_with_best_contrast(detected_frames)
             # print(f"Selected 1 frames from {len(detected_frames)} detections.")
-            checked_frames_count += 1
-            if not scan_frame_for_text(selected_frame_data, expected_text=expected_text):
+            future = executor.submit(scan_frame_for_text, selected_frame_data, expected_text=expected_text)
+            ocr_futures.append(future)
+
+        # Wait for all remaining futures to complete
+        for f in concurrent.futures.as_completed(ocr_futures):
+            try:
+                success = f.result()
+                checked_frames_count += 1
+                if not success:
+                    failed_frames_count += 1
+            except Exception as e:
+                print(f"Error in OCR task: {e}")
                 failed_frames_count += 1
 
     finally:
         # Cleanup
+        executor.shutdown(wait=True)
         cap.release()
         if show_frames:
             cv2.destroyAllWindows()
@@ -138,7 +173,6 @@ def main():
         video_path="D:/TestVideos/Videos/temp/8.mp4",
         expected_text=["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "325"],
         conf_threshold=0.8,
-        frame_delay_ms=1,
         show_frames=True,
     )
 
