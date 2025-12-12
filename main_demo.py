@@ -62,6 +62,7 @@ def process_video(
                 conf=conf_threshold,
                 verbose=False,
                 stream=False,
+                device="intel:cpu"
             )
 
             # Process detections
