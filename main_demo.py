@@ -137,7 +137,7 @@ def main():
 
     print(">>> Starting video processing...")
     process_video(
-        video_path="D:/TestVideos/Videos/temp/8.mp4",
+        video_path="D:/Piyush/1.mp4",
         expected_text=["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "325"],
         conf_threshold=0.8,
         frame_delay_ms=1,
