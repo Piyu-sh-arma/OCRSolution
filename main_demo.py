@@ -5,6 +5,7 @@ from support.frame_utils import resize_frame, save_frame
 from support.paddleocr_model import PaddleOCRModel
 from support.yolo_model import YoloObjDetectionModel
 from text_recognition_rnd import detect_and_verify
+from timing_decorator import timing_decorator
 
 
 def scan_frame_for_text(frame_data, expected_text=[]):
@@ -15,7 +16,7 @@ def scan_frame_for_text(frame_data, expected_text=[]):
     return detect_and_verify(frame, expected_text)
     
 
-
+@timing_decorator
 def process_video(
     video_path="",
     expected_text=[],

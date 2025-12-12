@@ -13,7 +13,7 @@ FRAME_DELAY_MS = 1  # Delay between frames in milliseconds
 # Yolo model
 ############################
 
-YOLO_MODEL_PATH = "models/y11n_int8_openvino_model"
+YOLO_MODEL_PATH = "models/y11n_int8_openvino_model/"
 #Confidence threshold for detections
 CONFIDENCE_THRESHOLD = 0.85
 
