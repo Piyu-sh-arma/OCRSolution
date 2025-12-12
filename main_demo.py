@@ -1,7 +1,9 @@
 import cv2
+import numpy as np
 import config
 from support.frame_selector import FrameSelector
 from support.frame_utils import resize_frame, save_frame
+from support.model_manager import ModelManager
 from support.paddleocr_model import PaddleOCRModel
 from support.yolo_model import YoloObjDetectionModel
 from text_recognition_rnd import detect_and_verify
@@ -28,9 +30,9 @@ def process_video(
     failed_frames_count = 0
 
     # Load model once
-    model = YoloObjDetectionModel().get_model()
+    yolo_model = ModelManager().get_yolo_model()
 
-    if model is None:
+    if yolo_model is None:
         raise ValueError("Failed to load YOLO model")
     
     cap = cv2.VideoCapture(video_path)
@@ -58,7 +60,9 @@ def process_video(
 
             frame_counter += 1
             # Resize frame for faster processing
-            results = model.predict(
+
+            
+            results = yolo_model.predict(
                 source=frame,
                 conf=conf_threshold,
                 verbose=False,
@@ -87,7 +91,7 @@ def process_video(
                 # Process accumulated frames when detection ends
                 if detected_frames:
                     selected_frame_data = frame_selector.find_with_best_contrast(detected_frames)
-                    # print(f"Selected 1 frames from {len(detected_frames)} detections.")
+                    print(f">>>>> Selected frame {selected_frame_data[0]} for detection")
                     checked_frames_count += 1
                     if not scan_frame_for_text(selected_frame_data, expected_text=expected_text):
                         failed_frames_count += 1
@@ -100,13 +104,6 @@ def process_video(
 
                 if cv2.waitKey(frame_delay_ms) & 0xFF == ord("q"):
                     break
-        # Process any remaining frames
-        if detected_frames:
-            selected_frame_data = frame_selector.find_with_best_contrast(detected_frames)
-            # print(f"Selected 1 frames from {len(detected_frames)} detections.")
-            checked_frames_count += 1
-            if not scan_frame_for_text(selected_frame_data, expected_text=expected_text):
-                failed_frames_count += 1
 
     finally:
         # Cleanup
@@ -126,14 +123,14 @@ def main():
     # expected_str_list = ["70g+10g*", "Rs.0.14/g", "MFG.","12/25", "5338B095J3", "325"]
     # expected_str_list = ["70g+5g*", "Rs.0.14/g", "MFG.","11/25", "5330B095J3", "1355"]
 
-    # initialize ocr model first
-    print(">>> Initializing PaddleOCR model...")
-    PaddleOCRModel()
-    print(">>> PaddleOCR model initialized.")
-
-    print(">>> Initializing Yolo Object detection model...")
-    model = YoloObjDetectionModel().get_model()
-    print(">>> PaddleOCR Yolo Object detection model initialized.")
+    # Initialize model manager
+    model_mgr = ModelManager()
+    
+    # Create a dummy frame for warmup
+    dummy_frame = np.zeros((480, 640, 3), dtype=np.uint8)
+    
+    # Warm up all models before processing
+    model_mgr.warmup_models(dummy_frame)
 
     print(">>> Starting video processing...")
     process_video(

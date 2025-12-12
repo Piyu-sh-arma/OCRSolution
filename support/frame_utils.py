@@ -26,8 +26,11 @@ def save_frame(file_path: str, frame) -> bool:
 
 
 def resize_frame(frame, width=config.FRAME_WIDTH, height=config.FRAME_HEIGHT):
-   
-    return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+    h,w,_ = frame.shape
+    if h!=height or w!=width:
+        return cv2.resize(frame, (width, height), interpolation=cv2.INTER_AREA)
+    else:
+        return frame
 
 
 def enhance_blacks(img, threshold=110):
